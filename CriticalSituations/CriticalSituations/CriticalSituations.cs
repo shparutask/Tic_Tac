@@ -39,7 +39,7 @@ namespace CriticalSituations
         //public static int PLAYER_O = -1;
 
         //занято ли поле соперником?
-        private bool IsNotEnemy(int col, int row)
+        private bool IsEnemy(int col, int row)
         {
             return m_field[col][row] != 0 && m_field[col][row] != player;
         }
@@ -50,7 +50,7 @@ namespace CriticalSituations
             for (int i = -1; i < 2; i++)
                 for (int j = -1; j < 2; j++)
                 {
-                    if (IsNotEnemy(col + i, row + j))
+                    if (IsEnemy(col + i, row + j))
                     {
                         return new Move(i, j);
                     }
@@ -63,17 +63,21 @@ namespace CriticalSituations
             bool flag = false;
             int winCount = 0;
             Move news = isMoved(col, row);
+            Move needToMove = new Move(0, 0);
             if (news.x == 0 && news.y == 0) return new Move(0, 0);
             for (int i = 1; i < winLength; i++)
             {
-                if (!IsNotEnemy(col + news.x, row + news.y))
+                if (!IsEnemy(col + news.x, row + news.y))
                 {
-                    if (flag) return new Move(col + news.x + i, row + news.y + i);
+                    if (flag) return needToMove;
                     flag = true;
-                    winCount++;
+                    needToMove = new Move(col + news.x * i, row + news.y * i);
                 }
+                winCount++;
             }
-            return new Move(0, 0);
+            if (winCount == winLength - 1)
+                return new Move(col - news.x * winCount, row - news.y * winCount);
+            return needToMove;
         }
 
         public Move IsCritical(Field field)
@@ -97,7 +101,7 @@ namespace CriticalSituations
             for (int i = 0; i < rowCount; i++)
                 for (int j = 0; j < colCount; j++)
                 {
-                    if (IsNotEnemy(i, j))
+                    if (IsEnemy(i, j))
                     {
                         critical_coord = is_critical(i, j);
                     }
